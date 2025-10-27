@@ -177,9 +177,134 @@
   margin-top: 1rem;
 }
 
+.album-songs-preview {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.album-songs-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0 0;
+}
+
+.album-song-item {
+  padding: 0.5rem;
+  margin-bottom: 0.25rem;
+  background: white;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.album-song-item.more {
+  color: #666;
+  font-style: italic;
+}
+
 .loading {
   text-align: center;
   padding: 3rem;
   font-size: 1.2rem;
   color: #666;
+}
+
+.songs-selection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.available-songs h3,
+.selected-songs h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.song-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 0.5rem;
+}
+
+.song-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  transition: background-color 0.3s;
+  gap: 0.5rem;
+}
+
+.song-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.btn-move {
+  padding: 0.2rem 0.4rem;
+  font-size: 0.9rem;
+  min-width: 24px;
+  line-height: 1;
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-move:hover:not(:disabled) {
+  background-color: #545b62;
+}
+
+.btn-move:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.song-item:hover {
+  background-color: #e9ecef;
+}
+
+.song-item.selected {
+  background-color: #d4edda;
+  border: 1px solid #28a745;
+}
+
+.song-item span {
+  flex: 1;
+}
+
+.btn-add,
+.btn-remove {
+  padding: 0.25rem 0.5rem;
+  font-size: 1.2rem;
+  min-width: 30px;
+}
+
+.btn-add {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-add:hover {
+  background-color: #1e7e34;
+}
+
+.btn-remove {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-remove:hover {
+  background-color: #c82333;
 }
