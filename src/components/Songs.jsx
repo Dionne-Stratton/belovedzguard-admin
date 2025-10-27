@@ -6,6 +6,7 @@ import {
   updateSong,
   deleteSong,
 } from "../services/songsAPI.js";
+import GenreFilter from "./GenreFilter.jsx";
 import "./Songs.css";
 
 function Songs() {
@@ -14,17 +15,13 @@ function Songs() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingSong, setEditingSong] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState({
     title: "",
-    genre: "",
+    genre: "All",
     description: "",
     verse: "",
-    mp3: "",
-    songThumbnail: "",
-    animatedSongThumbnail: "",
-    videoThumbnail: "",
     youTube: "",
-    lyrics: "",
   });
 
   useEffect(() => {
@@ -49,19 +46,16 @@ function Songs() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Only send user-input fields, exclude auto-generated fields (_id, createdAt, updatedAt)
+      // Only send user-input fields, exclude auto-generated fields
       const songData = {
         title: formData.title,
         genre: formData.genre,
         description: formData.description,
         verse: formData.verse,
-        mp3: formData.mp3,
-        songThumbnail: formData.songThumbnail,
-        animatedSongThumbnail: formData.animatedSongThumbnail,
-        videoThumbnail: formData.videoThumbnail,
         youTube: formData.youTube,
-        lyrics: formData.lyrics,
       };
+
+      console.log("Submitting song data:", songData);
 
       if (editingSong) {
         await updateSong(editingSong._id, songData);
@@ -98,12 +92,7 @@ function Songs() {
       genre: song.genre || "",
       description: song.description || "",
       verse: song.verse || "",
-      mp3: song.mp3 || "",
-      songThumbnail: song.songThumbnail || "",
-      animatedSongThumbnail: song.animatedSongThumbnail || "",
-      videoThumbnail: song.videoThumbnail || "",
       youTube: song.youTube || "",
-      lyrics: song.lyrics || "",
     });
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -112,15 +101,10 @@ function Songs() {
   const resetForm = () => {
     setFormData({
       title: "",
-      genre: "",
+      genre: "All",
       description: "",
       verse: "",
-      mp3: "",
-      songThumbnail: "",
-      animatedSongThumbnail: "",
-      videoThumbnail: "",
       youTube: "",
-      lyrics: "",
     });
     setEditingSong(null);
     setShowForm(false);
@@ -130,16 +114,30 @@ function Songs() {
     return <div className="loading">Loading songs...</div>;
   }
 
+  // Filter songs based on search term
+  const filteredSongs = songs.filter((song) =>
+    song.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="songs-container">
       <div className="header">
         <h1>Songs Management</h1>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="btn btn-primary"
-        >
-          {showForm ? "Cancel" : "+ Add Song"}
-        </button>
+        <div className="header-actions">
+          <input
+            type="text"
+            placeholder="Search songs..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="btn btn-primary"
+          >
+            {showForm ? "Cancel" : "+ Add Song"}
+          </button>
+        </div>
       </div>
 
       {showForm && (
@@ -160,13 +158,10 @@ function Songs() {
 
           <div className="form-group">
             <label>Genre *</label>
-            <input
-              type="text"
+            <GenreFilter
               value={formData.genre}
-              onChange={(e) =>
-                setFormData({ ...formData, genre: e.target.value })
-              }
-              required
+              onChange={(value) => setFormData({ ...formData, genre: value })}
+              ariaLabel="Select song genre"
             />
           </div>
 
@@ -193,70 +188,12 @@ function Songs() {
           </div>
 
           <div className="form-group">
-            <label>MP3 URL</label>
-            <input
-              type="url"
-              value={formData.mp3}
-              onChange={(e) =>
-                setFormData({ ...formData, mp3: e.target.value })
-              }
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Song Thumbnail</label>
-            <input
-              type="url"
-              value={formData.songThumbnail}
-              onChange={(e) =>
-                setFormData({ ...formData, songThumbnail: e.target.value })
-              }
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Animated Thumbnail</label>
-            <input
-              type="url"
-              value={formData.animatedSongThumbnail}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  animatedSongThumbnail: e.target.value,
-                })
-              }
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Video Thumbnail</label>
-            <input
-              type="url"
-              value={formData.videoThumbnail}
-              onChange={(e) =>
-                setFormData({ ...formData, videoThumbnail: e.target.value })
-              }
-            />
-          </div>
-
-          <div className="form-group">
             <label>YouTube URL</label>
             <input
               type="url"
               value={formData.youTube}
               onChange={(e) =>
                 setFormData({ ...formData, youTube: e.target.value })
-              }
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Lyrics URL</label>
-            <input
-              type="url"
-              value={formData.lyrics}
-              onChange={(e) =>
-                setFormData({ ...formData, lyrics: e.target.value })
               }
             />
           </div>
@@ -277,7 +214,7 @@ function Songs() {
       )}
 
       <div className="songs-list">
-        {songs.length === 0 ? (
+        {filteredSongs.length === 0 ? (
           <p className="empty-state">No songs found. Create your first song!</p>
         ) : (
           <table className="songs-table">
@@ -289,7 +226,7 @@ function Songs() {
               </tr>
             </thead>
             <tbody>
-              {songs.map((song) => (
+              {filteredSongs.map((song) => (
                 <tr key={song._id}>
                   <td>{song.title}</td>
                   <td>{song.genre}</td>

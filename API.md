@@ -74,12 +74,12 @@ A secure REST API for music streaming with user playlists and admin content mana
 | \_id                  | ObjectId | generated | Unique song identifier       |
 | title                 | String   | yes       | Song title                   |
 | genre                 | String   | yes       | Musical genre                |
-| mp3                   | String   | no        | MP3 file URL                 |
-| songThumbnail         | String   | no        | Static thumbnail image URL   |
-| animatedSongThumbnail | String   | no        | Animated thumbnail video URL |
-| videoThumbnail        | String   | no        | Video thumbnail image URL    |
+| mp3                   | String   | generated | MP3 file URL                 |
+| songThumbnail         | String   | generated | Static thumbnail image URL   |
+| animatedSongThumbnail | String   | generated | Animated thumbnail video URL |
+| videoThumbnail        | String   | generated | Video thumbnail image URL    |
 | youTube               | String   | no        | YouTube video URL            |
-| lyrics                | String   | no        | Lyrics file URL              |
+| lyrics                | String   | generated | Lyrics file URL              |
 | description           | String   | no        | Song description             |
 | verse                 | String   | no        | Featured verse or excerpt    |
 
