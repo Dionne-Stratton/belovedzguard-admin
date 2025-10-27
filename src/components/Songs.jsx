@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
+import { useToast } from "../context/ToastContext.jsx";
 import {
   getSongs,
   createSong,
@@ -11,11 +12,13 @@ import "./Songs.css";
 
 function Songs() {
   const { isAuthenticated, isLoading: authLoading } = useAuth0();
+  const { showToast } = useToast();
   const [songs, setSongs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingSong, setEditingSong] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [genreFilter, setGenreFilter] = useState("All");
   const [formData, setFormData] = useState({
     title: "",
     genre: "All",
@@ -36,8 +39,8 @@ function Songs() {
       const data = await getSongs();
       setSongs(data);
     } catch (error) {
+      showToast("Error loading songs: " + error.message, "error");
       console.error("Error loading songs:", error);
-      console.error("Error loading songs: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -64,12 +67,13 @@ function Songs() {
       }
       await loadSongs();
       resetForm();
-      console.log(
-        editingSong ? "Song updated successfully" : "Song created successfully"
+      showToast(
+        editingSong ? "Song updated successfully" : "Song created successfully",
+        "success"
       );
     } catch (error) {
+      showToast("Error saving song: " + error.message, "error");
       console.error("Error saving song:", error);
-      console.error("Error saving song: " + error.message);
     }
   };
 
@@ -78,10 +82,10 @@ function Songs() {
     try {
       await deleteSong(id);
       await loadSongs();
-      console.log("Song deleted successfully");
+      showToast("Song deleted successfully", "success");
     } catch (error) {
+      showToast("Error deleting song: " + error.message, "error");
       console.error("Error deleting song:", error);
-      console.error("Error deleting song: " + error.message);
     }
   };
 
@@ -114,10 +118,15 @@ function Songs() {
     return <div className="loading">Loading songs...</div>;
   }
 
-  // Filter songs based on search term
-  const filteredSongs = songs.filter((song) =>
-    song.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter songs based on search term and genre
+  const filteredSongs = songs.filter((song) => {
+    const matchesSearch = song.title
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesGenre =
+      genreFilter === "All" || song.genre === genreFilter;
+    return matchesSearch && matchesGenre;
+  });
 
   return (
     <div className="songs-container">
@@ -130,6 +139,11 @@ function Songs() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
+          />
+          <GenreFilter
+            value={genreFilter}
+            onChange={(value) => setGenreFilter(value)}
+            ariaLabel="Filter by genre"
           />
           <button
             onClick={() => setShowForm(!showForm)}

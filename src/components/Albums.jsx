@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
+import { useToast } from "../context/ToastContext.jsx";
 import {
   getAlbums,
   createAlbum,
@@ -11,6 +12,7 @@ import "./Albums.css";
 
 function Albums() {
   const { isAuthenticated, isLoading: authLoading } = useAuth0();
+  const { showToast } = useToast();
   const [albums, setAlbums] = useState([]);
   const [allSongs, setAllSongs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,6 +20,7 @@ function Albums() {
   const [editingAlbum, setEditingAlbum] = useState(null);
   const [selectedSongs, setSelectedSongs] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
   });
@@ -44,8 +47,8 @@ function Albums() {
       const data = await getAlbums();
       setAlbums(data);
     } catch (error) {
+      showToast("Error loading albums: " + error.message, "error");
       console.error("Error loading albums:", error);
-      console.error("Error loading albums: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -53,6 +56,7 @@ function Albums() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     try {
       // Only send user-input fields, exclude auto-generated fields (_id, createdAt, updatedAt)
       const albumData = {
@@ -67,14 +71,17 @@ function Albums() {
       }
       await loadAlbums();
       resetForm();
-      console.log(
+      showToast(
         editingAlbum
           ? "Album updated successfully"
-          : "Album created successfully"
+          : "Album created successfully",
+        "success"
       );
     } catch (error) {
+      showToast("Error saving album: " + error.message, "error");
       console.error("Error saving album:", error);
-      console.error("Error saving album: " + error.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -83,10 +90,10 @@ function Albums() {
     try {
       await deleteAlbum(id);
       await loadAlbums();
-      console.log("Album deleted successfully");
+      showToast("Album deleted successfully", "success");
     } catch (error) {
+      showToast("Error deleting album: " + error.message, "error");
       console.error("Error deleting album:", error);
-      console.error("Error deleting album: " + error.message);
     }
   };
 
@@ -263,13 +270,22 @@ function Albums() {
           </div>
 
           <div className="form-actions">
-            <button type="submit" className="btn btn-success">
-              {editingAlbum ? "Update Album" : "Create Album"}
+            <button
+              type="submit"
+              className="btn btn-success"
+              disabled={isSubmitting}
+            >
+              {isSubmitting
+                ? "Saving..."
+                : editingAlbum
+                  ? "Update Album"
+                  : "Create Album"}
             </button>
             <button
               type="button"
               onClick={resetForm}
               className="btn btn-secondary"
+              disabled={isSubmitting}
             >
               Cancel
             </button>
