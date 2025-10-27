@@ -4,9 +4,9 @@ A React-based admin interface for managing songs and albums in the BelovedZGuard
 
 ## Features
 
-- 🎵 **Songs Management** - Create, Read, Update, Delete songs
-- 💿 **Albums Management** - Create, Read, Update, Delete albums
-- 🔐 **Authentication** - JWT token management for admin operations
+- 🎵 **Songs Management** - Create, Read, Update, Delete songs with search functionality
+- 💿 **Albums Management** - Create, Read, Update, Delete albums with song reordering
+- 🔐 **Authentication** - Auth0 login integration for secure admin operations
 - 📱 **Responsive Design** - Clean, modern UI
 
 ## Getting Started
@@ -31,81 +31,67 @@ npm install
 npm run dev
 ```
 
-3. Open your browser at `http://localhost:5173`
+3. Create a `.env` file in the root directory with your Auth0 credentials:
+
+```env
+VITE_APP_PRODUCTION_SERVER_URL=https://belovedzguard-ebf890192e0e.herokuapp.com
+VITE_APP_AUTH0_PROD_DOMAIN=your-auth0-domain.auth0.com
+VITE_APP_AUTH0_CLIENT_ID=your-client-id
+VITE_APP_AUDIENCE=your-api-audience
+```
+
+4. Open your browser at `http://localhost:3000`
 
 ## Authentication Setup
 
-### Getting Your Auth0 Token
+### Auth0 Login
 
-To perform admin operations (Create, Update, Delete), you need an Auth0 JWT token:
+The admin panel uses Auth0 for authentication. When you first load the app:
 
-1. **Using Auth0 Dashboard:**
+1. Click the **"Sign In"** button in the top right
+2. You'll be redirected to Auth0's login page
+3. Enter your admin credentials
+4. You'll be redirected back to the admin panel
 
-   - Log in to your Auth0 Dashboard
-   - Go to User Management
-   - Find your admin user
-   - Manually generate a token for testing
+The session is automatically maintained using Auth0's SDK.
 
-2. **Using cURL (for testing):**
-
-```bash
-curl -X POST 'https://YOUR_AUTH0_DOMAIN/oauth/token' \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "client_id": "YOUR_CLIENT_ID",
-    "client_secret": "YOUR_CLIENT_SECRET",
-    "audience": "YOUR_AUDIENCE",
-    "grant_type": "client_credentials"
-  }'
-```
-
-3. **Using Postman/Insomnia:**
-   - Create a new request to your Auth0 token endpoint
-   - Use Client Credentials grant type
-   - Copy the received access token
-
-### Setting the Token in the Admin Panel
-
-1. Navigate to any page in the admin panel
-2. You'll see the auth token section at the top
-3. Click "Change Token" (or it will show automatically if no token is set)
-4. Paste your JWT token
-5. Click "Save"
-
-The token is stored in your browser's localStorage for future sessions.
+See `AUTH0_SETUP.md` for detailed Auth0 configuration instructions.
 
 ## Usage
 
 ### Songs Management
 
-- **View Songs**: Browse all songs in a table format
+- **View Songs**: Browse all songs with search functionality
 - **Create Song**: Click "+ Add Song" to create a new song
   - Required fields: Title, Genre
-  - Optional fields: MP3 URL, Thumbnails, YouTube URL, Lyrics URL
+  - Optional fields: Description, Verse, YouTube URL
+  - Auto-generated fields (not on form): MP3, Thumbnails, Lyrics
 - **Edit Song**: Click "Edit" on any song to modify it
+  - Form automatically scrolls to top for better UX
 - **Delete Song**: Click "Delete" to remove a song (with confirmation)
+- **Search Songs**: Use the search bar to filter songs by title
 
 ### Albums Management
 
-- **View Albums**: See all albums in a grid layout
+- **View Albums**: See all albums in a grid layout with song previews
 - **Create Album**: Click "+ Add Album" to create a new album
-  - Required field: Title
-  - Optional field: Song IDs (comma-separated)
+  - Two-column interface:
+    - **Available Songs** (left): Browse and add songs to the album
+    - **Songs in Album** (right): View and manage album songs
+  - Search available songs using the search bar
+  - Use **+** to add songs, **×** to remove songs
+  - Use **↑↓** arrows to reorder songs within the album
 - **Edit Album**: Click "Edit" on any album to modify it
+  - Form automatically scrolls to top
+  - Songs can be reordered with up/down arrows
 - **Delete Album**: Click "Delete" to remove an album (with confirmation)
 
 ## API Base URL
 
-The admin panel connects to:
+The admin panel connects to the production server by default. To change this, update your `.env` file:
 
-```
-https://belovedzguard-ebf890192e0e.herokuapp.com
-```
-
-To change this, edit `src/config/api.js`:
-
-```javascript
-export const API_BASE_URL = "YOUR_API_URL";
+```env
+VITE_APP_PRODUCTION_SERVER_URL=https://belovedzguard-ebf890192e0e.herokuapp.com
 ```
 
 ## Project Structure
@@ -113,19 +99,20 @@ export const API_BASE_URL = "YOUR_API_URL";
 ```
 src/
 ├── components/
-│   ├── Albums.jsx          # Albums CRUD interface
-│   ├── AuthToken.jsx       # Token management UI
-│   ├── Dashboard.jsx       # Main dashboard
-│   ├── Layout.jsx          # Layout with navigation
-│   └── Songs.jsx           # Songs CRUD interface
-├── config/
-│   └── api.js              # API configuration
+│   ├── Albums.jsx           # Albums CRUD interface with song reordering
+│   ├── AuthWrapper.jsx      # Auth0 wrapper for API service
+│   ├── Dashboard.jsx         # Main dashboard
+│   ├── GenreFilter.jsx      # Genre dropdown component
+│   ├── Layout.jsx           # Layout with navigation
+│   ├── Login.jsx            # Auth0 login component
+│   └── Songs.jsx             # Songs CRUD interface with search
 ├── services/
-│   ├── albumsAPI.js        # Album API calls
-│   ├── api.js              # Axios setup & interceptors
-│   └── songsAPI.js         # Song API calls
-├── App.jsx                  # Main app with routing
-└── main.jsx                 # Entry point
+│   ├── albumsAPI.js         # Album API calls
+│   ├── createApiInstance.js # API instance with Auth0 integration
+│   ├── songsAPI.js          # Song API calls
+│   └── api.js               # API exports
+├── App.jsx                   # Main app with routing
+└── main.jsx                  # Entry point with Auth0Provider
 ```
 
 ## Available Scripts
@@ -144,12 +131,16 @@ src/
   "_id": "ObjectId",
   "title": "string (required)",
   "genre": "string (required)",
-  "mp3": "string (optional)",
-  "songThumbnail": "string (optional)",
-  "animatedSongThumbnail": "string (optional)",
-  "videoThumbnail": "string (optional)",
+  "description": "string (optional)",
+  "verse": "string (optional)",
   "youTube": "string (optional)",
-  "lyrics": "string (optional)"
+  "mp3": "string (auto-generated)",
+  "songThumbnail": "string (auto-generated)",
+  "animatedSongThumbnail": "string (auto-generated)",
+  "videoThumbnail": "string (auto-generated)",
+  "lyrics": "string (auto-generated)",
+  "createdAt": "Date",
+  "updatedAt": "Date"
 }
 ```
 
@@ -159,41 +150,43 @@ src/
 {
   "_id": "ObjectId",
   "title": "string (required)",
-  "songs": ["ObjectId"] (optional),
+  "songs": ["ObjectId"] (optional, ordered array),
   "createdAt": "Date",
   "updatedAt": "Date"
 }
 ```
+
+Note: The `songs` array order is preserved when creating or updating albums. Use the up/down arrows in the admin panel to reorder songs.
 
 ## Troubleshooting
 
 ### "Error loading songs/albums"
 
 - Check if the API is running
-- Verify the API_BASE_URL in `src/config/api.js`
+- Verify the API_BASE_URL in your `.env` file
 - Check browser console for detailed error messages
 
-### "Admin access required" errors
+### "Admin access required" or 401 errors
 
-- Ensure your JWT token is valid
-- Verify you have admin permissions in Auth0
-- Check that the token hasn't expired (typically 24 hours)
-- **Token Expiration**: If your token expires while using the admin panel, you'll see a warning and be prompted to enter a new token
+- Make sure you're logged in via Auth0
+- Check that your user has admin permissions in Auth0
+- Verify your `.env` file has correct Auth0 credentials
+- Check browser console for detailed error messages
 
-### Token not saving
+### Auth0 login not working
 
-- Check if localStorage is enabled in your browser
-- Try clearing browser cache
-- Check browser console for errors
+- Verify your Auth0 domain, client ID, and audience in `.env` file
+- Check that `localhost:3000` is allowed in your Auth0 application settings
+- See `AUTH0_SETUP.md` for detailed configuration
 
 ## Security Notes
 
-- JWT tokens are stored in browser localStorage
-- Never commit tokens to version control
-- Tokens have expiration times (typically 24 hours)
-- Admin operations require valid JWT authentication
+- Auth0 handles token management automatically
+- Never commit `.env` files to version control
+- Auth0 tokens are cached securely by the Auth0 SDK
+- Admin operations require valid authentication
 - All API calls include the Authorization header automatically
-- **Token Expiration**: The admin panel automatically detects expired tokens and prompts you to enter a new one
+- The session persists across page refreshes
 
 ## Support
 
