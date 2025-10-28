@@ -25,6 +25,7 @@ function Songs() {
     description: "",
     verse: "",
     youTube: "",
+    bandcamp: "",
   });
 
   useEffect(() => {
@@ -56,6 +57,7 @@ function Songs() {
         description: formData.description,
         verse: formData.verse,
         youTube: formData.youTube,
+        bandcamp: formData.bandcamp,
       };
 
       console.log("Submitting song data:", songData);
@@ -97,6 +99,7 @@ function Songs() {
       description: song.description || "",
       verse: song.verse || "",
       youTube: song.youTube || "",
+      bandcamp: song.bandcamp || "",
     });
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -109,6 +112,7 @@ function Songs() {
       description: "",
       verse: "",
       youTube: "",
+      bandcamp: "",
     });
     setEditingSong(null);
     setShowForm(false);
@@ -208,6 +212,17 @@ function Songs() {
               value={formData.youTube}
               onChange={(e) =>
                 setFormData({ ...formData, youTube: e.target.value })
+              }
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Bandcamp URL</label>
+            <input
+              type="url"
+              value={formData.bandcamp}
+              onChange={(e) =>
+                setFormData({ ...formData, bandcamp: e.target.value })
               }
             />
           </div>
