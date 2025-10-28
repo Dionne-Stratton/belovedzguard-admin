@@ -25,6 +25,7 @@ function Songs() {
     description: "",
     verse: "",
     youTube: "",
+    bandcamp: "",
   });
 
   useEffect(() => {
@@ -57,6 +58,11 @@ function Songs() {
         verse: formData.verse,
         youTube: formData.youTube,
       };
+
+      // Only include bandcamp when editing (for existing songs)
+      if (editingSong) {
+        songData.bandcamp = formData.bandcamp;
+      }
 
       console.log("Submitting song data:", songData);
 
@@ -97,6 +103,7 @@ function Songs() {
       description: song.description || "",
       verse: song.verse || "",
       youTube: song.youTube || "",
+      bandcamp: song.bandcamp || "",
     });
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -109,6 +116,7 @@ function Songs() {
       description: "",
       verse: "",
       youTube: "",
+      bandcamp: "",
     });
     setEditingSong(null);
     setShowForm(false);
@@ -211,6 +219,19 @@ function Songs() {
               }
             />
           </div>
+
+          {editingSong && (
+            <div className="form-group">
+              <label>Bandcamp URL</label>
+              <input
+                type="url"
+                value={formData.bandcamp}
+                onChange={(e) =>
+                  setFormData({ ...formData, bandcamp: e.target.value })
+                }
+              />
+            </div>
+          )}
 
           <div className="form-actions">
             <button type="submit" className="btn btn-success">
