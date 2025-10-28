@@ -57,8 +57,12 @@ function Songs() {
         description: formData.description,
         verse: formData.verse,
         youTube: formData.youTube,
-        bandcamp: formData.bandcamp,
       };
+
+      // Only include bandcamp when editing (for existing songs)
+      if (editingSong) {
+        songData.bandcamp = formData.bandcamp;
+      }
 
       console.log("Submitting song data:", songData);
 
@@ -216,16 +220,18 @@ function Songs() {
             />
           </div>
 
-          <div className="form-group">
-            <label>Bandcamp URL</label>
-            <input
-              type="url"
-              value={formData.bandcamp}
-              onChange={(e) =>
-                setFormData({ ...formData, bandcamp: e.target.value })
-              }
-            />
-          </div>
+          {editingSong && (
+            <div className="form-group">
+              <label>Bandcamp URL</label>
+              <input
+                type="url"
+                value={formData.bandcamp}
+                onChange={(e) =>
+                  setFormData({ ...formData, bandcamp: e.target.value })
+                }
+              />
+            </div>
+          )}
 
           <div className="form-actions">
             <button type="submit" className="btn btn-success">

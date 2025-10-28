@@ -2,7 +2,6 @@
 
 ## Current
 
-- [] Add bandcamp link to form
 - [] Add social share options
 
 ## Completed
@@ -22,3 +21,4 @@
 - [x] Update environment variable names to VITE*APP* prefix
 - [x] Configure Vite dev server to run on port 3000
 - [x] Update documentation (ADMIN_README.md, API.md)
+- [x] Add bandcamp URL field to edit form only (server generates for new songs)
