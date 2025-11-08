@@ -23,7 +23,9 @@ function Albums() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
+    isDraft: false,
   });
+  const [activeTab, setActiveTab] = useState("published");
 
   useEffect(() => {
     if (isAuthenticated && !authLoading) {
@@ -54,8 +56,7 @@ function Albums() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const saveAlbum = async (isDraft) => {
     setIsSubmitting(true);
     try {
       // Only send user-input fields, exclude auto-generated fields (_id, createdAt, updatedAt)
@@ -64,17 +65,24 @@ function Albums() {
         songs: selectedSongs,
       };
 
+      albumData.isDraft = !!isDraft;
+
       if (editingAlbum) {
         await updateAlbum(editingAlbum._id, albumData);
       } else {
         await createAlbum(albumData);
       }
       await loadAlbums();
+      setActiveTab(isDraft ? "drafts" : "published");
       resetForm();
       showToast(
-        editingAlbum
-          ? "Album updated successfully"
-          : "Album created successfully",
+        isDraft
+          ? editingAlbum
+            ? "Album updated as draft"
+            : "Album saved as draft"
+          : editingAlbum
+            ? "Album updated successfully"
+            : "Album created successfully",
         "success"
       );
     } catch (error) {
@@ -83,6 +91,16 @@ function Albums() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await saveAlbum(false);
+  };
+
+  const handleSaveDraft = async () => {
+    if (isSubmitting) return;
+    await saveAlbum(true);
   };
 
   const handleDelete = async (id) => {
@@ -101,12 +119,14 @@ function Albums() {
     setEditingAlbum(album);
     setFormData({
       title: album.title || "",
+      isDraft: !!album.isDraft,
     });
     // Extract song IDs from the album's songs (which are full objects)
     const songIds = Array.isArray(album.songs)
       ? album.songs.map((song) => (typeof song === "object" ? song._id : song))
       : [];
     setSelectedSongs(songIds);
+    setActiveTab(album.isDraft ? "drafts" : "published");
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -150,15 +170,28 @@ function Albums() {
   const resetForm = () => {
     setFormData({
       title: "",
+      isDraft: false,
     });
     setSelectedSongs([]);
     setEditingAlbum(null);
     setShowForm(false);
+    setIsSubmitting(false);
   };
 
   if (loading) {
     return <div className="loading">Loading albums...</div>;
   }
+
+  const tabFilteredAlbums = albums.filter((album) =>
+    activeTab === "drafts" ? !!album.isDraft : !album.isDraft
+  );
+
+  const emptyStateMessage =
+    tabFilteredAlbums.length === 0
+      ? activeTab === "drafts"
+        ? "No draft albums yet. Save an album as draft to see it here."
+        : "No albums found. Create your first album!"
+      : "";
 
   return (
     <div className="albums-container">
@@ -175,6 +208,18 @@ function Albums() {
       {showForm && (
         <form onSubmit={handleSubmit} className="album-form">
           <h2>{editingAlbum ? "Edit Album" : "Create New Album"}</h2>
+          {editingAlbum && (
+            <p className="draft-indicator">
+              Current status:{" "}
+              <span
+                className={
+                  formData.isDraft ? "status-badge draft" : "status-badge published"
+                }
+              >
+                {formData.isDraft ? "Draft" : "Published"}
+              </span>
+            </p>
+          )}
 
           <div className="form-group">
             <label>Title *</label>
@@ -271,6 +316,14 @@ function Albums() {
 
           <div className="form-actions">
             <button
+              type="button"
+              className="btn btn-outline"
+              onClick={handleSaveDraft}
+              disabled={isSubmitting}
+            >
+              Save as Draft
+            </button>
+            <button
               type="submit"
               className="btn btn-success"
               disabled={isSubmitting}
@@ -294,15 +347,42 @@ function Albums() {
       )}
 
       <div className="albums-list">
-        {albums.length === 0 ? (
-          <p className="empty-state">
-            No albums found. Create your first album!
-          </p>
+        <div className="tab-bar" role="tablist" aria-label="Album status filter">
+          <button
+            className={`tab ${activeTab === "published" ? "active" : ""}`}
+            role="tab"
+            aria-selected={activeTab === "published"}
+            onClick={() => setActiveTab("published")}
+          >
+            Published
+          </button>
+          <button
+            className={`tab ${activeTab === "drafts" ? "active" : ""}`}
+            role="tab"
+            aria-selected={activeTab === "drafts"}
+            onClick={() => setActiveTab("drafts")}
+          >
+            Drafts
+          </button>
+        </div>
+        {tabFilteredAlbums.length === 0 ? (
+          <p className="empty-state">{emptyStateMessage}</p>
         ) : (
           <div className="albums-grid">
-            {albums.map((album) => (
+            {tabFilteredAlbums.map((album) => (
               <div key={album._id} className="album-card">
-                <h3>{album.title}</h3>
+                <div className="album-card-header">
+                  <h3>{album.title}</h3>
+                  <span
+                    className={
+                      album.isDraft
+                        ? "status-badge draft"
+                        : "status-badge published"
+                    }
+                  >
+                    {album.isDraft ? "Draft" : "Published"}
+                  </span>
+                </div>
                 <p className="album-meta">
                   Created: {new Date(album.createdAt).toLocaleDateString()}
                 </p>

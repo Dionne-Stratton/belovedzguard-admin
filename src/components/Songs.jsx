@@ -26,7 +26,10 @@ function Songs() {
     verse: "",
     youTube: "",
     bandcamp: "",
+    isDraft: false,
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeTab, setActiveTab] = useState("published");
 
   useEffect(() => {
     if (isAuthenticated && !authLoading) {
@@ -47,8 +50,8 @@ function Songs() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const saveSong = async (isDraft) => {
+    setIsSubmitting(true);
     try {
       // Only send user-input fields, exclude auto-generated fields
       const songData = {
@@ -64,6 +67,8 @@ function Songs() {
         songData.bandcamp = formData.bandcamp;
       }
 
+      songData.isDraft = !!isDraft;
+
       console.log("Submitting song data:", songData);
 
       if (editingSong) {
@@ -72,15 +77,34 @@ function Songs() {
         await createSong(songData);
       }
       await loadSongs();
+      setActiveTab(isDraft ? "drafts" : "published");
       resetForm();
       showToast(
-        editingSong ? "Song updated successfully" : "Song created successfully",
+        isDraft
+          ? editingSong
+            ? "Song updated as draft"
+            : "Song saved as draft"
+          : editingSong
+            ? "Song updated successfully"
+            : "Song created successfully",
         "success"
       );
     } catch (error) {
       showToast("Error saving song: " + error.message, "error");
       console.error("Error saving song:", error);
+    } finally {
+      setIsSubmitting(false);
     }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await saveSong(false);
+  };
+
+  const handleSaveDraft = async () => {
+    if (isSubmitting) return;
+    await saveSong(true);
   };
 
   const handleDelete = async (id) => {
@@ -104,7 +128,9 @@ function Songs() {
       verse: song.verse || "",
       youTube: song.youTube || "",
       bandcamp: song.bandcamp || "",
+      isDraft: !!song.isDraft,
     });
+    setActiveTab(song.isDraft ? "drafts" : "published");
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -117,9 +143,11 @@ function Songs() {
       verse: "",
       youTube: "",
       bandcamp: "",
+      isDraft: false,
     });
     setEditingSong(null);
     setShowForm(false);
+    setIsSubmitting(false);
   };
 
   if (loading) {
@@ -135,6 +163,17 @@ function Songs() {
       genreFilter === "All" || song.genre === genreFilter;
     return matchesSearch && matchesGenre;
   });
+
+  const tabFilteredSongs = filteredSongs.filter((song) =>
+    activeTab === "drafts" ? !!song.isDraft : !song.isDraft
+  );
+
+  const emptyStateMessage =
+    tabFilteredSongs.length === 0
+      ? activeTab === "drafts"
+        ? "No draft songs yet. Save a song as draft to see it here."
+        : "No songs found. Create your first song!"
+      : "";
 
   return (
     <div className="songs-container">
@@ -165,6 +204,18 @@ function Songs() {
       {showForm && (
         <form onSubmit={handleSubmit} className="song-form">
           <h2>{editingSong ? "Edit Song" : "Create New Song"}</h2>
+          {editingSong && (
+            <p className="draft-indicator">
+              Current status:{" "}
+              <span
+                className={
+                  formData.isDraft ? "status-badge draft" : "status-badge published"
+                }
+              >
+                {formData.isDraft ? "Draft" : "Published"}
+              </span>
+            </p>
+          )}
 
           <div className="form-group">
             <label>Title *</label>
@@ -234,13 +285,30 @@ function Songs() {
           )}
 
           <div className="form-actions">
-            <button type="submit" className="btn btn-success">
-              {editingSong ? "Update Song" : "Create Song"}
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={handleSaveDraft}
+              disabled={isSubmitting}
+            >
+              Save as Draft
+            </button>
+            <button
+              type="submit"
+              className="btn btn-success"
+              disabled={isSubmitting}
+            >
+              {isSubmitting
+                ? "Saving..."
+                : editingSong
+                  ? "Update Song"
+                  : "Create Song"}
             </button>
             <button
               type="button"
               onClick={resetForm}
               className="btn btn-secondary"
+              disabled={isSubmitting}
             >
               Cancel
             </button>
@@ -249,22 +317,50 @@ function Songs() {
       )}
 
       <div className="songs-list">
-        {filteredSongs.length === 0 ? (
-          <p className="empty-state">No songs found. Create your first song!</p>
+        <div className="tab-bar" role="tablist" aria-label="Song status filter">
+          <button
+            className={`tab ${activeTab === "published" ? "active" : ""}`}
+            role="tab"
+            aria-selected={activeTab === "published"}
+            onClick={() => setActiveTab("published")}
+          >
+            Published
+          </button>
+          <button
+            className={`tab ${activeTab === "drafts" ? "active" : ""}`}
+            role="tab"
+            aria-selected={activeTab === "drafts"}
+            onClick={() => setActiveTab("drafts")}
+          >
+            Drafts
+          </button>
+        </div>
+        {tabFilteredSongs.length === 0 ? (
+          <p className="empty-state">{emptyStateMessage}</p>
         ) : (
           <table className="songs-table">
             <thead>
               <tr>
                 <th>Title</th>
                 <th>Genre</th>
+                <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredSongs.map((song) => (
+              {tabFilteredSongs.map((song) => (
                 <tr key={song._id}>
                   <td>{song.title}</td>
                   <td>{song.genre}</td>
+                  <td>
+                    <span
+                      className={
+                        song.isDraft ? "status-badge draft" : "status-badge published"
+                      }
+                    >
+                      {song.isDraft ? "Draft" : "Published"}
+                    </span>
+                  </td>
                   <td>
                     <button
                       onClick={() => handleEdit(song)}
