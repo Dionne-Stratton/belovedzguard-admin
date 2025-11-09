@@ -65,7 +65,12 @@ See `AUTH0_SETUP.md` for detailed Auth0 configuration instructions.
 - **Create Song**: Click "+ Add Song" to create a new song
   - Required fields: Title, Genre
   - Optional fields: Description, Verse, YouTube URL
-  - Auto-generated fields (not on form): MP3, Thumbnails, Lyrics
+  - Media uploads (optional): MP3 audio, song thumbnail, animated thumbnail, video thumbnail, lyrics file
+    - Choose a file in the corresponding slot to upload via the Cloudflare R2 presign flow
+    - Leave a slot blank to keep the existing asset
+- **Save as Draft**: Use the "Save as Draft" button to create or update a song without publishing it
+  - Draft songs appear in the **Drafts** tab and remain hidden from public routes
+  - Switching tabs between **Published** and **Drafts** filters the table accordingly
 - **Edit Song**: Click "Edit" on any song to modify it
   - Form automatically scrolls to top for better UX
 - **Delete Song**: Click "Delete" to remove a song (with confirmation)
@@ -81,6 +86,8 @@ See `AUTH0_SETUP.md` for detailed Auth0 configuration instructions.
   - Search available songs using the search bar
   - Use **+** to add songs, **×** to remove songs
   - Use **↑↓** arrows to reorder songs within the album
+- **Save Album as Draft**: Use the "Save as Draft" button to create a draft album
+  - Draft albums are visible under the **Drafts** tab in the album list and hidden from public routes
 - **Edit Album**: Click "Edit" on any album to modify it
   - Form automatically scrolls to top
   - Songs can be reordered with up/down arrows
@@ -110,6 +117,7 @@ src/
 │   ├── albumsAPI.js         # Album API calls
 │   ├── createApiInstance.js # API instance with Auth0 integration
 │   ├── songsAPI.js          # Song API calls
+│   ├── uploadsAPI.js        # Presigned upload requests
 │   └── api.js               # API exports
 ├── App.jsx                   # Main app with routing
 └── main.jsx                  # Entry point with Auth0Provider
