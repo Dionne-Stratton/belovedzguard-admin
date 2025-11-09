@@ -159,6 +159,88 @@
   margin-top: 1.5rem;
 }
 
+.form-help {
+  margin-top: -0.5rem;
+  margin-bottom: 1.5rem;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.form-help-text {
+  margin: 0.5rem 0 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.asset-section {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.asset-section h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.asset-upload input[type="file"] {
+  display: block;
+  margin-top: 0.5rem;
+}
+
+.current-asset {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+.current-asset a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.current-asset a:hover {
+  text-decoration: underline;
+}
+
+.upload-status {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #555;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.upload-status.success {
+  color: #1e7e34;
+}
+
+.upload-status.error {
+  color: #c82333;
+}
+
+.upload-progress {
+  font-weight: 600;
+}
+
+.btn-remove-upload {
+  background-color: #dc3545;
+  color: white;
+  margin-left: auto;
+}
+
+.btn-remove-upload:hover {
+  background-color: #c82333;
+}
+
+.upload-warning {
+  margin-top: 1rem;
+  color: #d35400;
+  font-weight: 600;
+}
+
 .draft-indicator {
   display: flex;
   align-items: center;
