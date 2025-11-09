@@ -2,10 +2,10 @@
 
 ## Current
 
-- [] Add social share options
-
 ## Completed
 
+- [x] add the ability to let admin upload to cloudflare buckets
+- [x] Add drafts of songs and albums
 - [x] Add toast notification system for success/error messages
 - [x] Add dashboard stats showing total songs and albums count
 - [x] Add genre filter dropdown to Songs list (in addition to search)
