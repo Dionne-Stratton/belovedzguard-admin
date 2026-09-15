@@ -47,7 +47,7 @@ VITE_APP_PRODUCTION_SERVER_URL=https://your-api-url.com
 3. **VITE_AUTH0_AUDIENCE**:
    - This is your API Identifier
    - Auth0 Dashboard → Applications → APIs → Your API
-   - Example: `https://belovedzguard-ebf890192e0e.herokuapp.com/api` or whatever you set for your API audience
+   - Example: `https://belovedzguard-music-api.dionnestratton.workers.dev/api` or whatever you set for your API audience
 
 ### Important Notes
 

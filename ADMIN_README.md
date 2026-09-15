@@ -34,7 +34,7 @@ npm run dev
 3. Create a `.env` file in the root directory with your Auth0 credentials:
 
 ```env
-VITE_APP_PRODUCTION_SERVER_URL=https://belovedzguard-ebf890192e0e.herokuapp.com
+VITE_APP_PRODUCTION_SERVER_URL=https://belovedzguard-music-api.dionnestratton.workers.dev/api
 VITE_APP_AUTH0_PROD_DOMAIN=your-auth0-domain.auth0.com
 VITE_APP_AUTH0_CLIENT_ID=your-client-id
 VITE_APP_AUDIENCE=your-api-audience
@@ -98,7 +98,7 @@ See `AUTH0_SETUP.md` for detailed Auth0 configuration instructions.
 The admin panel connects to the production server by default. To change this, update your `.env` file:
 
 ```env
-VITE_APP_PRODUCTION_SERVER_URL=https://belovedzguard-ebf890192e0e.herokuapp.com
+VITE_APP_PRODUCTION_SERVER_URL=https://belovedzguard-music-api.dionnestratton.workers.dev/api
 ```
 
 ## Project Structure
