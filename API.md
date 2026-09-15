@@ -396,32 +396,14 @@ CONTACT_EMAIL=your-email@gmail.com
 
 ## Deployment
 
-This API is deployed on **Heroku** and automatically deploys from the main branch.
-
-### Heroku Setup
-
-1. **Connect GitHub repository** to Heroku app
-2. **Set environment variables** in Heroku dashboard:
-
-   - `MONGODB_URL`
-   - `AUTH0_DOMAIN`
-   - `AUTH0_AUDIENCE`
-   - `ADMIN_AUTH0_ID`
-   - `EMAIL_SERVICE`
-   - `EMAIL_USER`
-   - `EMAIL_PASSWORD`
-   - `CONTACT_EMAIL` (optional)
-
-3. **Manual deployment** (if needed):
-   ```bash
-   heroku git:remote -a your-app-name
-   git push heroku main
-   ```
+The production API runs on **Cloudflare Workers**.
 
 ### Production URL
 
-- **API Base URL:** `https://belovedzguard-ebf890192e0e.herokuapp.com`
-- **Contact Endpoint:** `https://belovedzguard-ebf890192e0e.herokuapp.com/api/public/contact`
+- **API Base URL:** `https://belovedzguard-music-api.dionnestratton.workers.dev`
+- **Contact Endpoint:** `https://belovedzguard-music-api.dionnestratton.workers.dev/api/public/contact`
+
+Set `VITE_APP_PRODUCTION_SERVER_URL` to `https://belovedzguard-music-api.dionnestratton.workers.dev/api` for the admin app.
 
 ---
 
